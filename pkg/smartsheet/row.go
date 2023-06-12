@@ -71,7 +71,7 @@ func (c Client) AddRow(sheetId int64, rows []Row) (*[]Row, error) {
 }
 
 func (c Client) GetRow(sheetId int64, rowId int64) (*Row, error) {
-	var res ResultObject
+	var res Row
 	resp, err := c.get(fmt.Sprintf("%s/sheets/%d/rows/%d", apiEndpoint, sheetId, rowId))
 	if err != nil {
 		return nil, err
@@ -79,7 +79,5 @@ func (c Client) GetRow(sheetId int64, rowId int64) (*Row, error) {
 	if dErr := c.decodeJSON(resp, &res); dErr != nil {
 		return nil, fmt.Errorf("could not decode JSON response: %v", dErr)
 	}
-	var result Row
-	err = mapstructure.Decode(res.Result, &result)
-	return &result, nil
+	return &res, nil
 }
