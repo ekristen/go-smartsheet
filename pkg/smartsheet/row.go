@@ -23,8 +23,8 @@ import (
 )
 
 type Row struct {
-	Id                int64        `json:"id,omitempty"`                // Row Id
-	SheetId           int64        `json:"sheetId,omitempty"`           // Parent sheet Id
+	Id                int64        `json:"id,omitempty"`      // Row Id
+	SheetId           int64        `json:"sheetId,omitempty"` // Parent sheet Id
 	ParentId          int64        `json:"parentId,omitempty"`
 	SiblingId         int64        `json:"siblingId,omitempty"`
 	AccessLevel       string       `json:"accessLevel,omitempty"`       // User's permission level on the sheet that contains the row
@@ -66,6 +66,20 @@ func (c Client) AddRow(sheetId int64, rows []Row) (*[]Row, error) {
 		return nil, fmt.Errorf("could not decode JSON response: %v", dErr)
 	}
 	var result []Row
+	err = mapstructure.Decode(res.Result, &result)
+	return &result, nil
+}
+
+func (c Client) GetRow(sheetId int64, rowId int64) (*Row, error) {
+	var res ResultObject
+	resp, err := c.get(fmt.Sprintf("%s/sheets/%d/rows/%d", apiEndpoint, sheetId, rowId))
+	if err != nil {
+		return nil, err
+	}
+	if dErr := c.decodeJSON(resp, &res); dErr != nil {
+		return nil, fmt.Errorf("could not decode JSON response: %v", dErr)
+	}
+	var result Row
 	err = mapstructure.Decode(res.Result, &result)
 	return &result, nil
 }
