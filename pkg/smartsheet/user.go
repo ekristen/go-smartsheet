@@ -16,7 +16,10 @@
 
 package smartsheet
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type User struct {
 	Id                        int        `json:"id,omitempty"`                        //   User Id
@@ -33,4 +36,16 @@ type User struct {
 	ResourceViewer            bool       `json:"resourceViewer,omitempty"`            //Indicates whether the user is a resource viewer (can access resource views)
 	SheetCount                int        `json:"sheetCount,omitempty"`                //The number of sheets owned by the current user within the organization account
 	Status                    string     `json:"status,omitempty"`                    //User status, set to one of the following values: ACTIVE, DECLINED, or PENDING
+}
+
+func (c Client) GetCurrentUser() (*User, error) {
+	var user User
+	resp, err := c.get(fmt.Sprintf("%s/users/me", apiEndpoint))
+	if err != nil {
+		return nil, err
+	}
+	if dErr := c.decodeJSON(resp, &user); dErr != nil {
+		return nil, fmt.Errorf("could not decode JSON response: %v", dErr)
+	}
+	return &user, nil
 }
